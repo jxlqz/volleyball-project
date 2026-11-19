@@ -400,6 +400,30 @@ public class Main {
                     System.out.println("No block to tool!");
                 }
             }
+
+            int cpuDigScore = cpuTeam.getMainLibero().getReceive();
+
+            cpuDigScore -= digDifficulty;
+            cpuDigScore += roll(-20,20);
+
+            if (cpuDigScore < 50) {
+                System.out.println("KILL! Your team wins the point.");
+                return;
+            } else if (cpuDigScore < 70) {
+                System.out.println("CPU makes a bad dig!");
+            } else if (cpuDigScore < 85) {
+                System.out.println("CPU makes a good dig!");
+            } else {
+                System.out.println("CPU makes a perfect dig!");
+            }
+
+            System.out.println("\nCPU prepares to counterattack!");
+
+            Player cpuHitter;
+
+            if (roll(0,1) == 0) {
+                cpuHitter = cpuTeam.getMainOutside();
+            }
         }
     }
 }
