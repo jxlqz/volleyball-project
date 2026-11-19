@@ -1,3 +1,4 @@
+
 import java.util.*;
 
 public class Main {
@@ -8,6 +9,26 @@ public class Main {
         PlayerPool pool = new PlayerPool();
 
         draftPlayers(pool, input);
+    }
+
+    public static int roll(int min, int max) {
+        return min + (int) (Math.random() * (max - min + 1));
+    }
+
+    public static int readChoice(Scanner input, int min, int max) {
+        while (true) {
+            String line = input.nextLine().trim();
+            try {
+                int choice = Integer.parseInt(line);
+                if (choice >= min && choice <= max) {
+                    return choice;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number.");
+                continue;
+            }
+            System.out.println("Choose a number from " + min + " to " + max + ".");
+        }
     }
 
     public static void draftPlayers(PlayerPool pool, Scanner input) {
@@ -162,9 +183,9 @@ public class Main {
         System.out.println("What serve are you preparing for?");
         System.out.println("1. Jumpserve");
         System.out.println("2. Float serve");
-        int preparation = input.nextInt();
+        int preparation = readChoice(input, 1, 2);
 
-        int target =(int)(Math.random() * 100);
+        int target = (int) (Math.random() * 100);
 
         Player receiver;
 
@@ -177,7 +198,7 @@ public class Main {
         } else {
             receiver = team.getMainSetter();
         }
-        int serveType = (int)(Math.random() * 4);
+        int serveType = (int) (Math.random() * 4);
 
         String serve;
 
@@ -193,9 +214,9 @@ public class Main {
             serveCategory = 2;
         } else {
             serve = "Hybrid Serve";
-            serveCategory = (int)(Math.random() * 2) + 1;
+            serveCategory = (int) (Math.random() * 2) + 1;
         }
-        System.out.println("CPU used a " + serve +"!");
+        System.out.println("CPU used a " + serve + "!");
 
         boolean preparedCorrectly = preparation == serveCategory;
 
@@ -215,7 +236,7 @@ public class Main {
             receiveScore -= 10;
         }
 
-        receiveScore += (int)(Math.random() * 41) - 20;
+        receiveScore += (int) (Math.random() * 41) - 20;
         int passQuality;
 
         if (receiveScore >= 90) {
@@ -244,7 +265,7 @@ public class Main {
         if (passQuality == 0) {
             System.out.println("The pass is shanked!");
 
-            int saveChance = (int)(Math.random() * 100);
+            int saveChance = (int) (Math.random() * 100);
 
             if (saveChance < 60) {
                 System.out.println("Your team manages to save the ball!");
@@ -255,50 +276,130 @@ public class Main {
             }
         }
 
-        System.out.println("\n Who do you want to set?");
-        System.out.println("1. " + team.getMainOutside1().getName());
-        System.out.println("2. " + team.getMainOutside2().getName());
+        while (true) {
+            System.out.println("\nWHO DO YOU WANT TO SET?");
+            System.out.println("1. " + team.getMainOutside1().getName());
+            System.out.println("2. " + team.getMainOutside2().getName());
+            int hitterChoice = readChoice(input, 1, 2);
+            Player hitter = hitterChoice == 1 ? team.getMainOutside1() : team.getMainOutside2();
 
-        int hitterChoice = input.nextInt();
+            System.out.println(team.getMainSetter().getName() + " sets " + hitter.getName() + "!");
+            int settingScore = team.getMainSetter().getSetting();
+            if (passQuality == 3) {
+                settingScore += 15;
+            } else if (passQuality == 2) {
+                settingScore += 5;
+            } else {
+                settingScore -= 15;
+            }
+            settingScore += roll(-10, 10);
+            int setQuality;
+            if (settingScore >= 90) {
+                System.out.println("PERFECT SET!");
+                setQuality = 3;
+            } else if (settingScore >= 75) {
+                System.out.println("GOOD SET!");
+                setQuality = 2;
+            } else if (settingScore >= 55) {
+                System.out.println("BAD SET!");
+                setQuality = 1;
+            } else {
+                System.out.println("SETTING ERROR! CPU wins the point.");
+                return;
+            }
 
-        Player hitter;
+            System.out.println("\nCHOOSE YOUR ATTACK!");
+            System.out.println("1. Power cross");
+            System.out.println("2. Power line");
+            System.out.println("3. Sharp cut shot");
+            System.out.println("4. Roll shot");
+            System.out.println("5. Tip");
+            System.out.println("6. Tool the block");
+            System.out.println("7. Hit the seam");
+            System.out.println("8. Off-speed spike");
+            int attackChoice = readChoice(input, 1, 8);
+            String[] attackNames = {"Power cross", "Power line", "Sharp cut shot", "Roll shot", "Tip", "Tool the block", "Hit the seam", "Off-speed spike"};
+            int attackScore = hitter.getAttack();
+            if (setQuality == 3) {
+                attackScore += 15;
+            } else if (setQuality == 2) {
+                attackScore += 5;
+            } else {
+                attackScore -= 15;
+            }
+            int digDifficulty;
+            int blockRisk;
+            int targetZone;
+            if (attackChoice == 1) {
+                attackScore -= 10;
+                digDifficulty = 25;
+                blockRisk = 20;
+                targetZone = 1;
+            } else if (attackChoice == 2) {
+                attackScore -= 15;
+                digDifficulty = 28;
+                blockRisk = 20;
+                targetZone = 2;
+            } else if (attackChoice == 3) {
+                attackScore -= 20;
+                digDifficulty = 30;
+                blockRisk = 10;
+                targetZone = 1;
+            } else if (attackChoice == 4) {
+                attackScore += 8;
+                digDifficulty = 8;
+                blockRisk = 5;
+                targetZone = 3;
+            } else if (attackChoice == 5) {
+                attackScore += 12;
+                digDifficulty = 0;
+                blockRisk = 0;
+                targetZone = 4;
+            } else if (attackChoice == 6) {
+                attackScore -= 15;
+                digDifficulty = 5;
+                blockRisk = 0;
+                targetZone = 2;
+            } else if (attackChoice == 7) {
+                attackScore -= 12;
+                digDifficulty = 23;
+                blockRisk = 15;
+                targetZone = 5;
+            } else {
+                attackScore += 3;
+                digDifficulty = 12;
+                blockRisk = 8;
+                targetZone = 3;
+            }
+            System.out.println(hitter.getName() + " uses " + attackNames[attackChoice - 1] + "!");
+            attackScore = Math.max(5, Math.min(95, attackScore + roll(-10, 10)));
+            if (roll(0, 99) >= attackScore) {
+                System.out.println("ATTACK ERROR! CPU wins the point.");
+                return;
+            }
 
-        if (hitterChoice == 1) {
-            hitter = team.getMainOutside1();
-        } else {
-            hitter = team.getMainOutside2();
+            boolean cpuBlockUp = Math.random() < 0.55;
+            if (cpuBlockUp) {
+                System.out.println("CPU tries to block!");
+                if (attackChoice == 6) {
+                    int toolChance = 30 + hitter.getAttack() / 3;
+                    if (setQuality == 3) {
+                        toolChance += 10;
+                    }
+                    if (roll(0, 99) < toolChance) {
+                        System.out.println("TOOL! Your team wins the point!");
+                        return;
+                    }
+                    digDifficulty = 0;
+                    System.out.println("The CPU keeps the tool attempt in play!");
+                } else if (roll(0, 99) < blockRisk) {
+                    System.out.println("STUFF BLOCK! CPU wins the point.");
+                    return;
+                } else if (attackChoice == 6) {
+                    digDifficulty = 0;
+                    System.out.println("No block to tool!");
+                }
+            }
         }
-
-        System.out.println(team.getMainSetter().getName() + " sets " + hitter.getName() + "!");
-
-        int settingScore = team.getMainSetter().getSetting();
-
-        if (passQuality == 3) {
-            settingScore += 15;
-        } else if (passQuality == 2) {
-            settingScore += 5;
-        } else {
-            settingScore -= 15;
-        }
-
-        settingScore += (int)(Math.random() * 21) - 10;
-
-        int setQuality;
-
-        if (settingScore >= 90) {
-            System.out.println("PERFECT SET!");
-            setQuality = 3;
-        } else if (settingScore >= 75) {
-            System.out.println("GOOD SET!");
-            setQuality = 2;
-        } else if (settingScore >= 55) {
-            System.out.println("BAD SET!");
-            setQuality = 1;
-        } else {
-            System.out.println("SETTING ERROR! CPU wins the point.");
-            return;
-        }
-
-        
     }
 }
